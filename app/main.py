@@ -1,0 +1,47 @@
+from contextlib import asynccontextmanager
+import traceback
+
+from fastapi import FastAPI, Header, HTTPException
+from app.models.nutrition import UserFood
+from app.services.nutrition_service import get_micronutrients
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    
+    yield
+
+    pass
+
+
+app = FastAPI(
+    title="Mini-Macro",
+    description="Food nutrition analysis API",
+    version="0.1.0",
+    lifespan=lifespan,
+)
+
+
+@app.get("/")
+async def root():
+    return {
+        "app": "Mini-Macro",
+        "version": "0.1.0",
+        "description": "Food nutrition analysis API"
+    }
+
+
+@app.get("/healthcheck")
+async def healthcheck():
+    return "checking mini macro and it looks healthy"
+
+
+@app.post("/view/nutrients")
+async def extract_nutrients(request: UserFood, accept: str = Header(default='application/json')):
+    try:
+        result = await get_micronutrients(request)  # Call the new function
+        return result
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        print(f"Traceback:\n{traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
