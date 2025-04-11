@@ -12,4 +12,3 @@ class MacroNutrient(BaseModel):
     carbohydrates: float
     fat: float
     fiber: Optional[float] = None
-
